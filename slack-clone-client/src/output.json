@@ -1,0 +1,96 @@
+{
+  "kind": "Document",
+  "definitions": [
+    {
+      "kind": "OperationDefinition",
+      "operation": "query",
+      "variableDefinitions": [
+        {
+          "kind": "VariableDefinition",
+          "variable": {
+            "kind": "Variable",
+            "name": { "kind": "Name", "value": "channelId" }
+          },
+          "type": {
+            "kind": "NonNullType",
+            "type": {
+              "kind": "NamedType",
+              "name": { "kind": "Name", "value": "Int" }
+            }
+          },
+          "directives": []
+        }
+      ],
+      "directives": [],
+      "selectionSet": {
+        "kind": "SelectionSet",
+        "selections": [
+          {
+            "kind": "Field",
+            "name": { "kind": "Name", "value": "messages" },
+            "arguments": [
+              {
+                "kind": "Argument",
+                "name": { "kind": "Name", "value": "channelId" },
+                "value": {
+                  "kind": "Variable",
+                  "name": { "kind": "Name", "value": "channelId" }
+                }
+              }
+            ],
+            "directives": [],
+            "selectionSet": {
+              "kind": "SelectionSet",
+              "selections": [
+                {
+                  "kind": "Field",
+                  "name": { "kind": "Name", "value": "id" },
+                  "arguments": [],
+                  "directives": []
+                },
+                {
+                  "kind": "Field",
+                  "name": { "kind": "Name", "value": "text" },
+                  "arguments": [],
+                  "directives": []
+                },
+                {
+                  "kind": "Field",
+                  "name": { "kind": "Name", "value": "createdAt" },
+                  "arguments": [],
+                  "directives": []
+                },
+                {
+                  "kind": "Field",
+                  "name": { "kind": "Name", "value": "user" },
+                  "arguments": [],
+                  "directives": [],
+                  "selectionSet": {
+                    "kind": "SelectionSet",
+                    "selections": [
+                      {
+                        "kind": "Field",
+                        "name": { "kind": "Name", "value": "username" },
+                        "arguments": [],
+                        "directives": []
+                      },
+                      {
+                        "kind": "Field",
+                        "name": { "kind": "Name", "value": "__typename" }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "kind": "Field",
+                  "name": { "kind": "Name", "value": "__typename" }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "loc": { "start": 0, "end": 151 }
+}
