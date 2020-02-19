@@ -1,9 +1,8 @@
 // using ES6 modules
 import React from 'react';
-import { Router, Route, Switch, Redirect } from 'react-router-dom';
+import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
 import decode from 'jwt-decode';
 
-import history from '../history';
 import Home from './Home';
 import Register from './Register';
 import Login from './Login';
@@ -37,7 +36,7 @@ const PrivateRoute = ({ component: Component, ...rest }) => (
 );
 
 export default () => (
-  <Router history={history}>
+  <BrowserRouter>
     <Switch>
       <Route path="/" exact component={Home} />
       <Route path="/register" exact component={Register} />
@@ -49,5 +48,5 @@ export default () => (
         component={ViewTeam}
       />
     </Switch>
-  </Router>
+  </BrowserRouter>
 );

@@ -27,6 +27,11 @@ export default {
               teamId: team.id,
               public: true
             });
+            await models.Member.create({
+              teamId: team.id,
+              userId: user.id,
+              admin: true
+            });
             return team;
           });
           return {

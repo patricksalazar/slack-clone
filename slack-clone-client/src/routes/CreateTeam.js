@@ -8,7 +8,7 @@ import {
   Button,
   Message
 } from 'semantic-ui-react';
-import { gql } from 'apollo-boost';
+import gql from 'graphql-tag';
 import { useMutation } from '@apollo/react-hooks';
 
 const CREATE_TEAM = gql`

@@ -125,12 +125,12 @@ models.sequelize.sync({}).then(() => {
               throw new Error('Invalid auth tokens');
             }
 
-            const member = await models.Member.findOne({
-              where: { teamId: 1, userId: user.id }
-            });
-            if (!member) {
-              throw new Error('Missing auth tokens');
-            }
+            // const member = await models.Member.findOne({
+            //   where: { teamId: 1, userId: user.id }
+            // });
+            // if (!member) {
+            //   throw new Error('Missing auth tokens');
+            // }
 
             return true;
           }

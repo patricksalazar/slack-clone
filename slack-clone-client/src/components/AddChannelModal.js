@@ -72,6 +72,7 @@ const AddChannelModal = ({
     </Modal>
   );
 };
+
 export default compose(
   graphql(CREATE_CHANNEL),
   withFormik({
