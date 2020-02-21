@@ -6,7 +6,7 @@ import { graphql } from 'react-apollo';
 import * as compose from 'lodash.flowright';
 import { findIndex } from 'lodash';
 
-import { ALL_TEAMS } from '../graphql/team';
+import { ME_QUERY } from '../graphql/team';
 
 const CREATE_CHANNEL = gql`
   mutation($teamId: Int!, $name: String!) {
@@ -101,16 +101,11 @@ export default compose(
             return;
           }
 
-          const data = store.readQuery({ query: ALL_TEAMS });
-          let teamIdx = findIndex(data.allTeams, ['id', teamId]);
-          if (teamIdx >= 0) {
-            data.allTeams[teamIdx].channels.push(channel);
-          } else {
-            teamIdx = findIndex(data.inviteTeams, ['id', teamId]);
-            data.inviteTeams[teamIdx].channels.push(channel);
-          }
+          const data = store.readQuery({ query: ME_QUERY });
+          let teamIdx = findIndex(data.me.teams, ['id', teamId]);
+          data.me.teams[teamIdx].channels.push(channel);
           store.writeQuery({
-            query: ALL_TEAMS,
+            query: ME_QUERY,
             data
           });
         }

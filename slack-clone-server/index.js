@@ -25,6 +25,7 @@ app.use(cors('*'));
 
 const addUser = async (req, res, next) => {
   const token = req.headers['x-token'];
+  console.log('x-token:' + token);
   if (token) {
     try {
       req.user = findUser(token, SECRET);
@@ -43,6 +44,7 @@ const addUser = async (req, res, next) => {
           req.user = newTokens.user;
         })
         .catch(err => {
+          console.log('refreshToken: ' + refreshToken);
           console.log('Error in get token: ' + JSON.stringify(err));
         });
     }
@@ -118,23 +120,13 @@ models.sequelize.sync({}).then(() => {
                   user = newTokens.user;
                 })
                 .catch(err => {
+                  console.log('token: ' + token + ', refresh: ' + refreshToken);
                   console.log('Error in get token: ' + JSON.stringify(err));
                 });
             }
-            if (!user) {
-              throw new Error('Invalid auth tokens');
-            }
-
-            // const member = await models.Member.findOne({
-            //   where: { teamId: 1, userId: user.id }
-            // });
-            // if (!member) {
-            //   throw new Error('Missing auth tokens');
-            // }
-
-            return true;
+            return { models, user };
           }
-          throw new Error('Missing auth tokens');
+          return {};
         }
       },
       {

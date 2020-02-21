@@ -2,19 +2,6 @@ import { formatErrors } from '../utils/formatErrors';
 import { requiresAuth } from '../utils/permissions';
 
 export default {
-  Query: {
-    allTeams: requiresAuth.createResolver(
-      async (parent, args, { models, user }) =>
-        models.Team.findAll({ where: { owner: user.id } }, { raw: true })
-    ),
-    inviteTeams: requiresAuth.createResolver(
-      async (parent, args, { models, user }) =>
-        models.sequelize.query(
-          'select teams.* from teams inner join members on id = team_id where user_id = ?',
-          { replacements: [user.id], model: models.Team }
-        )
-    )
-  },
   Mutation: {
     createTeam: requiresAuth.createResolver(
       async (parent, args, { models, user }) => {
@@ -50,21 +37,32 @@ export default {
     addTeamMember: requiresAuth.createResolver(
       async (parent, { email, teamId }, { models, user }) => {
         try {
-          const teamPromise = models.Team.findOne(
-            { where: { id: teamId } },
+          const memberPromise = models.Member.findOne(
+            { where: { teamId, userId: user.id } },
             { raw: true }
           );
           const userToAddPromise = models.User.findOne(
             { where: { email } },
             { raw: true }
           );
-          const [team, userToAdd] = await Promise.all([
-            teamPromise,
+          const [member, userToAdd] = await Promise.all([
+            memberPromise,
             userToAddPromise
           ]);
-          console.log('team:' + JSON.stringify(team));
+          console.log('member:' + JSON.stringify(member));
           console.log('userToAdd:' + JSON.stringify(userToAdd));
 
+          if (!member.admin) {
+            return {
+              ok: false,
+              errors: [
+                {
+                  path: 'email',
+                  message: 'You cannot add members to the team.'
+                }
+              ]
+            };
+          }
           if (!userToAdd) {
             return {
               ok: false,
@@ -76,18 +74,7 @@ export default {
               ]
             };
           }
-          if (team.owner !== user.id) {
-            return {
-              ok: false,
-              errors: [
-                {
-                  path: 'email',
-                  message: 'Must be an owner to add members to the team.'
-                }
-              ]
-            };
-          }
-          await models.Member.create({ userId: userToAdd.id, teamId: team.id });
+          await models.Member.create({ userId: userToAdd.id, teamId });
           return {
             ok: true
           };

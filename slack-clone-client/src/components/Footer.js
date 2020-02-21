@@ -1,8 +1,5 @@
 import React from 'react';
-import { graphql } from 'react-apollo';
-import gql from 'graphql-tag';
 import { withFormik } from 'formik';
-import * as compose from 'lodash.flowright';
 
 import styled from 'styled-components';
 import { Input } from 'semantic-ui-react';
@@ -15,14 +12,8 @@ const FooterWrapper = styled.div`
 
 const ENTER_KEY = 13;
 
-const SEND_MESSAGE = gql`
-  mutation($channelId: Int!, $text: String!) {
-    createMessage(channelId: $channelId, text: $text)
-  }
-`;
-
 const SendMessage = ({
-  channelName,
+  placeholder,
   values,
   handleChange,
   handleBlur,
@@ -41,32 +32,27 @@ const SendMessage = ({
           handleSubmit();
         }
       }}
-      placeholder={`Message #${channelName}`}
+      placeholder={`Message #${placeholder}`}
     />
   </FooterWrapper>
 );
 
-export default compose(
-  graphql(SEND_MESSAGE),
-  withFormik({
-    mapPropsToValues: () => ({ message: '' }),
+export default withFormik({
+  mapPropsToValues: () => ({ message: '' }),
 
-    handleSubmit: async (
-      values,
-      { props: { channelId, mutate }, setSubmitting, resetForm }
-    ) => {
-      if (!values.message || !values.message.trim()) {
-        setSubmitting(false);
-        return;
-      }
-
-      const response = await mutate({
-        variables: { channelId: parseInt(channelId), text: values.message }
-      });
-      console.log('response: ' + response);
+  handleSubmit: async (
+    values,
+    { props: { onSubmit }, setSubmitting, resetForm }
+  ) => {
+    if (!values.message || !values.message.trim()) {
       setSubmitting(false);
-      resetForm(true);
-    },
-    displayName: 'BasicForm'
-  })
-)(SendMessage);
+      return;
+    }
+
+    await onSubmit(values.message);
+
+    setSubmitting(false);
+    resetForm(true);
+  },
+  displayName: 'BasicForm'
+})(SendMessage);

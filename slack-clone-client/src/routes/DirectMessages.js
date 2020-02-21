@@ -6,8 +6,8 @@ import findIndex from 'lodash/findIndex';
 import * as compose from 'lodash.flowright';
 
 import Sidebar from '../containers/Sidebar';
-import MessageContainer from '../containers/MessageContainer';
-import Header from '../components/Header';
+// import MessageContainer from '../containers/MessageContainer';
+// import Header from '../components/Header';
 import Footer from '../components/Footer';
 import AppLayout from '../components/AppLayout';
 
@@ -19,11 +19,10 @@ const SEND_MESSAGE = gql`
   }
 `;
 
-const ViewTeam = ({
-  mutate,
+const DirectMessages = ({
   data: { loading, error, me },
   match: {
-    params: { teamId, channelId }
+    params: { teamId, userId }
   }
 }) => {
   if (loading) return <p>Loading...</p>;
@@ -38,13 +37,6 @@ const ViewTeam = ({
   const teamIdx = teamIdInteger ? findIndex(teams, ['id', teamIdInteger]) : 0;
   const team = teamIdx === -1 ? teams[0] : teams[teamIdx];
 
-  let channelIdInteger = parseInt(channelId, 10);
-  const channelIdx = channelIdInteger
-    ? findIndex(team.channels, ['id', channelIdInteger])
-    : 0;
-  const channel =
-    channelIdx === -1 ? team.channels[0] : team.channels[channelIdx];
-
   return (
     <AppLayout>
       <Sidebar
@@ -55,16 +47,10 @@ const ViewTeam = ({
         team={team}
         username={username}
       />
-      {channel && <Header channelName={channel.name} />}
-      {channel && <MessageContainer channelId={channel.id} />}
-      {channel && (
-        <Footer
-          placeholder={channel.name}
-          onSubmit={async text => {
-            return await mutate({ variables: { text, channelId: channel.id } });
-          }}
-        />
-      )}
+      {/* <Header channelName={channel.name} />
+      <MessageContainer channelId={channel.id} /> */}
+      {/* <Footer channelId={channel.id} channelName={channel.name} /> */}
+      <Footer onSubmit={() => {}} placeholder={userId} />
     </AppLayout>
   );
 };
@@ -72,4 +58,4 @@ const ViewTeam = ({
 export default compose(
   graphql(ME_QUERY, { options: { fetchPolicy: 'network-only' } }),
   graphql(SEND_MESSAGE)
-)(ViewTeam);
+)(DirectMessages);

@@ -1,11 +1,13 @@
 import { tryLogin } from '../auth';
 import { formatErrors } from '../utils/formatErrors';
+import { requiresAuth } from '../utils/permissions';
 
 export default {
   Query: {
-    getUser: (parent, { id }, { models }) =>
-      models.User.findOne({ where: { id } }),
-    allUsers: (parent, args, { models }) => models.User.findAll()
+    allUsers: (parent, args, { models }) => models.User.findAll(),
+    me: requiresAuth.createResolver((parent, args, { models, user }) =>
+      models.User.findOne({ where: { id: user.id } })
+    )
   },
   Mutation: {
     login: (parent, { email, password }, { models, SECRET, SECRET2 }) =>
@@ -33,6 +35,14 @@ export default {
           errors: formatErrors(err, models)
         };
       }
+    }
+  },
+  User: {
+    teams: (parent, args, { models, user }) => {
+      return models.sequelize.query(
+        'select t.*, m.admin from teams as t inner join members as m on t.id = m.team_id where m.user_id = ?',
+        { replacements: [user.id], model: models.Team, raw: true }
+      );
     }
   }
 };
