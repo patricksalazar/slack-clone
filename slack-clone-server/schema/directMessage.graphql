@@ -6,7 +6,7 @@ type DirectMessage {
 }
 
 type Query {
-  directMessages: [Message]!
+  directMessages(teamId: Int!, otherUserId: Int!): [Message]!
 }
 
 type Mutation {

@@ -6,21 +6,21 @@ import findIndex from 'lodash/findIndex';
 import * as compose from 'lodash.flowright';
 
 import Sidebar from '../containers/Sidebar';
-// import MessageContainer from '../containers/MessageContainer';
+import DirectMessageContainer from '../containers/DirectMessageContainer';
 // import Header from '../components/Header';
 import Footer from '../components/Footer';
 import AppLayout from '../components/AppLayout';
 
 import { ME_QUERY } from '../graphql/team';
 
-const SEND_MESSAGE = gql`
-  mutation($channelId: Int!, $text: String!) {
-    createMessage(channelId: $channelId, text: $text)
+const CREATE_DIRECT_MESSAGE = gql`
+  mutation($receiverId: Int!, $text: String!) {
+    createDirectMessage(receiverId: $receiverId, text: $text)
   }
 `;
 
 const DirectMessages = ({
-  data: { loading, error, me },
+  data: { mutate, loading, error, me },
   match: {
     params: { teamId, userId }
   }
@@ -47,15 +47,24 @@ const DirectMessages = ({
         team={team}
         username={username}
       />
-      {/* <Header channelName={channel.name} />
-      <MessageContainer channelId={channel.id} /> */}
-      {/* <Footer channelId={channel.id} channelName={channel.name} /> */}
-      <Footer onSubmit={() => {}} placeholder={userId} />
+      <Header channelName={"Someone's username"} />
+      <DirectMessageContainer teamId={teamId} otherUserId={userId} />
+      <Footer
+        onSubmit={async text => {
+          await mutate({
+            variables: {
+              text,
+              receiverId: userId
+            }
+          });
+        }}
+        placeholder={userId}
+      />
     </AppLayout>
   );
 };
 
 export default compose(
   graphql(ME_QUERY, { options: { fetchPolicy: 'network-only' } }),
-  graphql(SEND_MESSAGE)
+  graphql(CREATE_DIRECT_MESSAGE)
 )(DirectMessages);
