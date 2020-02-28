@@ -2,6 +2,22 @@ import { formatErrors } from '../utils/formatErrors';
 import { requiresAuth } from '../utils/permissions';
 
 export default {
+  Query: {
+    getTeamMembers: requiresAuth.createResolver(
+      async (parent, { teamId }, { models }) => {
+        try {
+          console.log('teamId: ' + teamId);
+          return models.sequelize.query(
+            'select u.* from users as u inner join members as m on m.user_id = u.id where m.team_id = ?',
+            { replacements: [teamId], model: models.User, raw: true }
+          );
+        } catch (err) {
+          console.error('Error: ' + JSON.stringify(err));
+          return [];
+        }
+      }
+    )
+  },
   Mutation: {
     createTeam: requiresAuth.createResolver(
       async (parent, args, { models, user }) => {
@@ -90,6 +106,18 @@ export default {
   },
   Team: {
     channels: (parent, args, { models }) =>
-      models.Channel.findAll({ where: { teamId: parent.id } })
+      models.Channel.findAll({ where: { teamId: parent.id } }),
+    directMessageMembers: ({ id }, args, { models, user }) =>
+      models.sequelize.query(
+        'select distinct on (u.id) u.id, u.username from users as u join direct_messages as dm' +
+          ' on (u.id = dm.sender_id) or (u.id = dm.receiver_id)' +
+          ' where (:currentUserId = dm.sender_id or :currentUserId = dm.receiver_id)' +
+          ' and dm.team_id = :teamId',
+        {
+          replacements: { currentUserId: user.id, teamId: id },
+          model: models.User,
+          raw: true
+        }
+      )
   }
 };

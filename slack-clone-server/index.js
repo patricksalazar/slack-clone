@@ -108,8 +108,6 @@ models.sequelize.sync({}).then(() => {
         subscribe,
         schema,
         onConnect: async ({ token, refreshToken }, webSocket) => {
-          console.log('token: ' + token);
-          console.log('refreshToken: ' + refreshToken);
           if (token && refreshToken) {
             let user = null;
             try {

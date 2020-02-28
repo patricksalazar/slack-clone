@@ -7,26 +7,54 @@ import * as compose from 'lodash.flowright';
 
 import Sidebar from '../containers/Sidebar';
 import DirectMessageContainer from '../containers/DirectMessageContainer';
-// import Header from '../components/Header';
+import Header from '../components/Header';
 import Footer from '../components/Footer';
 import AppLayout from '../components/AppLayout';
 
 import { ME_QUERY } from '../graphql/team';
 
 const CREATE_DIRECT_MESSAGE = gql`
-  mutation($receiverId: Int!, $text: String!) {
-    createDirectMessage(receiverId: $receiverId, text: $text)
+  mutation($receiverId: Int!, $teamId: Int!, $text: String!) {
+    createDirectMessage(receiverId: $receiverId, teamId: $teamId, text: $text)
+  }
+`;
+
+const DIRECT_MESSAGES_QUERY = gql`
+  query($userId: Int!) {
+    getUser(userId: $userId) {
+      username
+    }
+    me {
+      id
+      username
+      email
+      teams {
+        id
+        name
+        admin
+        directMessageMembers {
+          id
+          username
+        }
+        channels {
+          id
+          name
+        }
+      }
+    }
   }
 `;
 
 const DirectMessages = ({
-  data: { mutate, loading, error, me },
+  mutate,
+  data: { loading, error, me, getUser },
   match: {
     params: { teamId, userId }
   }
 }) => {
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {JSON.stringify(error)}</p>;
+  console.log('Direct Messages');
 
   const { username, teams } = me;
   if (!teams.length) {
@@ -37,6 +65,8 @@ const DirectMessages = ({
   const teamIdx = teamIdInteger ? findIndex(teams, ['id', teamIdInteger]) : 0;
   const team = teamIdx === -1 ? teams[0] : teams[teamIdx];
 
+  let userIdInteger = parseInt(userId, 10);
+  console.log('userIdInteger: ' + userIdInteger);
   return (
     <AppLayout>
       <Sidebar
@@ -47,16 +77,42 @@ const DirectMessages = ({
         team={team}
         username={username}
       />
-      <Header channelName={"Someone's username"} />
-      <DirectMessageContainer teamId={teamId} otherUserId={userId} />
+      <Header channelName={getUser.username} />
+      <DirectMessageContainer teamId={team.id} userId={userIdInteger} />
       <Footer
         onSubmit={async text => {
-          await mutate({
+          const response = await mutate({
             variables: {
               text,
-              receiverId: userId
+              receiverId: userIdInteger,
+              teamId: teamIdInteger
+            },
+            optimisticResponse: {
+              createDirectMessage: true
+            },
+            update: store => {
+              const data = store.readQuery({ query: ME_QUERY });
+              let teamIdx2 = findIndex(data.me.teams, ['id', team.id]);
+              const notAlreadyThere = data.me.teams[
+                teamIdx2
+              ].directMessageMembers.every(
+                member => member.id !== userIdInteger
+              );
+              if (notAlreadyThere) {
+                console.log('Add Direct User: ' + userId);
+                data.me.teams[teamIdx2].directMessageMembers.push({
+                  __typename: 'User',
+                  id: userIdInteger,
+                  username: getUser.username
+                });
+                store.writeQuery({
+                  query: ME_QUERY,
+                  data
+                });
+              }
             }
           });
+          console.log('response: ' + JSON.stringify(response));
         }}
         placeholder={userId}
       />
@@ -65,6 +121,11 @@ const DirectMessages = ({
 };
 
 export default compose(
-  graphql(ME_QUERY, { options: { fetchPolicy: 'network-only' } }),
+  graphql(DIRECT_MESSAGES_QUERY, {
+    options: props => ({
+      variables: { userId: parseInt(props.match.params.userId, 10) },
+      fetchPolicy: 'network-only'
+    })
+  }),
   graphql(CREATE_DIRECT_MESSAGE)
 )(DirectMessages);

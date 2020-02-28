@@ -44,7 +44,7 @@ export default () => (
       <Route path="/login" exact component={Login} />
       <PrivateRoute path="/create-team" exact component={CreateTeam} />
       <PrivateRoute
-        path="/view=team/user/:teamId/:userId"
+        path="/view-team/user/:teamId/:userId"
         exact
         component={DirectMessages}
       />

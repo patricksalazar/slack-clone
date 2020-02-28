@@ -1,7 +1,6 @@
-import { PubSub, withFilter } from 'apollo-server-express';
+import { withFilter } from 'apollo-server-express';
 import { requiresAuth, requiresTeamAccess } from '../utils/permissions';
-
-const pubsub = new PubSub();
+import pubsub from '../utils/pubsub';
 
 const NEW_CHANNEL_MESSAGE = 'NEW_CHANNEL_MESSAGE';
 

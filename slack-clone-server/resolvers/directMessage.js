@@ -1,21 +1,25 @@
-// import { PubSub, withFilter } from 'apollo-server-express';
-import { requiresAuth, requiresTeamAccess } from '../utils/permissions';
+import { withFilter } from 'apollo-server-express';
+import { requiresAuth, directMessageSubscription } from '../utils/permissions';
+import pubsub from '../utils/pubsub';
 
-// const pubsub = new PubSub();
-
-// const NEW_CHANNEL_MESSAGE = 'NEW_CHANNEL_MESSAGE';
+const NEW_DIRECT_MESSAGE = 'NEW_DIRECT_MESSAGE';
 
 export default {
-  // Subscription: {
-  //   newChannelMessage: {
-  //     subscribe: requiresTeamAccess.createResolver(
-  //       withFilter(
-  //         () => pubsub.asyncIterator(NEW_CHANNEL_MESSAGE),
-  //         (payload, args) => payload.channelId === args.channelId
-  //       )
-  //     )
-  //   }
-  // },
+  Subscription: {
+    newDirectMessage: {
+      subscribe: directMessageSubscription.createResolver(
+        withFilter(
+          () => pubsub.asyncIterator(NEW_DIRECT_MESSAGE),
+          (payload, args, { user }) =>
+            payload.teamId === args.teamId &&
+            ((payload.senderId === user.id &&
+              payload.receiverId === args.userId) ||
+              (payload.senderId === args.userId &&
+                payload.receiverId === user.id))
+        )
+      )
+    }
+  },
   Query: {
     directMessages: requiresAuth.createResolver(
       async (parent, { teamId, otherUserId }, { models, user }) => {
@@ -23,15 +27,15 @@ export default {
           {
             where: {
               teamId,
-              [models.sequelize.Op.or]: [
+              [models.Sequelize.Op.or]: [
                 {
-                  [models.sequelize.Op.and]: [
-                    { senderId: otherUserId, receiverId: userid }
+                  [models.Sequelize.Op.and]: [
+                    { senderId: otherUserId, receiverId: user.id }
                   ]
                 },
                 {
-                  [models.sequelize.Op.and]: [
-                    { senderId: userid, receiverId: otherUserId }
+                  [models.Sequelize.Op.and]: [
+                    { senderId: user.id, receiverId: otherUserId }
                   ]
                 }
               ]
@@ -52,23 +56,17 @@ export default {
             senderId: user.id
           });
 
-          // const asyncFunc = async () => {
-          //   const currentUser = await models.User.findOne({
-          //     where: {
-          //       id: user.id
-          //     }
-          //   });
-
-          //   pubsub.publish(NEW_CHANNEL_MESSAGE, {
-          //     channelId: args.channelId,
-          //     newChannelMessage: {
-          //       ...message.dataValues,
-          //       user: currentUser.dataValues
-          //     }
-          //   });
-          // };
-
-          // asyncFunc();
+          pubsub.publish(NEW_DIRECT_MESSAGE, {
+            teamId: args.teamId,
+            receiverId: args.receiverId,
+            senderId: user.id,
+            newDirectMessage: {
+              ...directMessage.dataValues,
+              sender: {
+                username: user.username
+              }
+            }
+          });
 
           return true;
         } catch (err) {
@@ -79,12 +77,12 @@ export default {
     )
   },
   DirectMessage: {
-    sender: ({ user, userId }, args, { models }) => {
-      if (user) {
-        return user;
+    sender: ({ sender, senderId }, args, { models }) => {
+      if (sender) {
+        return sender;
       }
 
-      return models.User.findOne({ where: { id: userId } }, { raw: true });
+      return models.User.findOne({ where: { id: senderId } }, { raw: true });
     }
   }
 };

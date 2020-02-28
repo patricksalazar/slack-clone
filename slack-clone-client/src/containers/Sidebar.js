@@ -4,11 +4,13 @@ import Channels from '../components/Channels';
 import Teams from '../components/Teams';
 import AddChannelModal from '../components/AddChannelModal';
 import InvitePeopleModal from '../components/InvitePeopleModal';
+import DirectMessageModal from '../components/DirectMessageModal';
 
 export default class Sidebar extends React.Component {
   state = {
     openAddChannelModal: false,
-    openInvitePeopleModal: false
+    openInvitePeopleModal: false,
+    openDirectMessageModal: false
   };
 
   toggleAddChannelModal = e => {
@@ -25,9 +27,20 @@ export default class Sidebar extends React.Component {
     }));
   };
 
+  toggleDirectMessageClick = e => {
+    if (e) e.preventDefault();
+    this.setState(state => ({
+      openDirectMessageModal: !state.openDirectMessageModal
+    }));
+  };
+
   render() {
     const { teams, team, username } = this.props;
-    const { openAddChannelModal, openInvitePeopleModal } = this.state;
+    const {
+      openAddChannelModal,
+      openInvitePeopleModal,
+      openDirectMessageModal
+    } = this.state;
 
     console.log('team.channels: ' + JSON.stringify(team.channels));
     console.log('team.admin: ' + JSON.stringify(team.admin));
@@ -41,18 +54,22 @@ export default class Sidebar extends React.Component {
         username={username}
         isOwner={team.admin}
         channels={team.channels}
-        users={[
-          { id: 1, name: 'slackbot' },
-          { id: 2, name: 'user1' }
-        ]}
+        users={team.directMessageMembers}
         onAddChannelClick={this.toggleAddChannelModal}
         onInvitePeopleClick={this.toggleInvitePeopleClick}
+        onDirectMessageClick={this.toggleDirectMessageClick}
       />,
       <AddChannelModal
         teamId={team.id}
         open={openAddChannelModal}
         onClose={this.toggleAddChannelModal}
         key="sidebar-add-channel-modal"
+      />,
+      <DirectMessageModal
+        teamId={team.id}
+        open={openDirectMessageModal}
+        onClose={this.toggleDirectMessageClick}
+        key="sidebar-direct-message-modal"
       />,
       <InvitePeopleModal
         teamId={team.id}

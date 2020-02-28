@@ -3,6 +3,7 @@ type Team {
   name: String!
   admin: Boolean
   members: [User!]!
+  directMessageMembers: [User!]!
   channels: [Channel!]!
 }
 
@@ -15,6 +16,7 @@ type CreateTeamResponse {
 type Query {
   allTeams: [Team!]!
   inviteTeams: [Team!]!
+  getTeamMembers(teamId: Int!): [User!]!
 }
 
 type VoidResponse {
