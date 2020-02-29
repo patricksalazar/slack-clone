@@ -42,9 +42,6 @@ export default class Sidebar extends React.Component {
       openDirectMessageModal
     } = this.state;
 
-    console.log('team.channels: ' + JSON.stringify(team.channels));
-    console.log('team.admin: ' + JSON.stringify(team.admin));
-
     return [
       <Teams key="teams-sidebar" teams={teams} />,
       <Channels

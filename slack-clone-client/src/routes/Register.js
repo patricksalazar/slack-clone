@@ -41,7 +41,7 @@ function Register() {
   }
   if (data && data.register && data.register.ok) {
     console.log('Success');
-    return <Redirect to="/" />;
+    return <Redirect to="/login" />;
   } else if (data && data.register && !data.register.ok) {
     const errors = data.register.errors;
     if (errors) {

@@ -37,18 +37,15 @@ function Login() {
   });
 
   if (loading) {
-    console.log('Loading: ' + JSON.stringify(loading));
     [emailError, passwordError] = '';
   }
 
-  console.log('Data: ' + JSON.stringify(data));
   if (data && data.login && data.login.ok) {
     const { ok, token, refreshToken } = data.login;
     if (ok) {
       localStorage.setItem('token', token);
       localStorage.setItem('refreshToken', refreshToken);
     }
-    console.log('Success');
     return <Redirect to="/view-team" />;
   } else if (data && data.login && !data.login.ok) {
     const errors = data.login.errors;

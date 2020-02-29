@@ -86,14 +86,24 @@ export default compose(
         variables: { teamId, email: values.email }
       });
 
-      console.log(response);
       const { ok, errors } = response.data.addTeamMember;
       if (ok) {
         onClose();
         setSubmitting(false);
       } else {
         setSubmitting(false);
-        setErrors(normalizeErrors(errors));
+        setErrors(
+          normalizeErrors(
+            errors.map(e =>
+              e.message === 'user_id must be unique'
+                ? {
+                    path: 'email',
+                    message: 'This user is already part of the team'
+                  }
+                : e
+            )
+          )
+        );
       }
     }
   })
