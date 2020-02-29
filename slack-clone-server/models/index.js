@@ -1,13 +1,19 @@
 import Sequelize from 'sequelize';
 
-const sequelize = new Sequelize('slack', 'postgres', 'postgres', {
-  host: '192.168.99.100',
-  dialect: 'postgres',
-  operatorAliases: Sequelize.Op,
-  define: {
-    underscored: true
+console.log('TEST: ' + process.env.TEST_DB);
+const sequelize = new Sequelize(
+  process.env.TEST_DB || 'slack',
+  'postgres',
+  'postgres',
+  {
+    host: '192.168.99.100',
+    dialect: 'postgres',
+    operatorAliases: Sequelize.Op,
+    define: {
+      underscored: true
+    }
   }
-});
+);
 
 const models = {
   User: sequelize['import']('./user'),
