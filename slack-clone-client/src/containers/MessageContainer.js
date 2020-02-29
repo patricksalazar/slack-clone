@@ -4,6 +4,7 @@ import gql from 'graphql-tag';
 import { Comment } from 'semantic-ui-react';
 
 import Messages from '../components/Messages';
+import FileUpload from '../components/FileUpload';
 
 const QUERY_MESSAGES = gql`
   query($channelId: Int!) {
@@ -78,22 +79,24 @@ class MessageContainer extends React.Component {
     } = this.props;
     return loading ? null : (
       <Messages channelId={channelId}>
-        <Comment.Group>
-          {messages.map(m => (
-            <Comment key={`message-${m.id}`}>
-              <Comment.Content>
-                <Comment.Author as="a">{m.user.username}</Comment.Author>
-                <Comment.Metadata>
-                  <div>{m.createdAt}</div>
-                </Comment.Metadata>
-                <Comment.Text>{m.text}</Comment.Text>
-                <Comment.Actions>
-                  <Comment.Action>Reply</Comment.Action>
-                </Comment.Actions>
-              </Comment.Content>
-            </Comment>
-          ))}
-        </Comment.Group>
+        <FileUpload disableClick>
+          <Comment.Group>
+            {messages.map(m => (
+              <Comment key={`message-${m.id}`}>
+                <Comment.Content>
+                  <Comment.Author as="a">{m.user.username}</Comment.Author>
+                  <Comment.Metadata>
+                    <div>{m.createdAt}</div>
+                  </Comment.Metadata>
+                  <Comment.Text>{m.text}</Comment.Text>
+                  <Comment.Actions>
+                    <Comment.Action>Reply</Comment.Action>
+                  </Comment.Actions>
+                </Comment.Content>
+              </Comment>
+            ))}
+          </Comment.Group>
+        </FileUpload>
       </Messages>
     );
   }

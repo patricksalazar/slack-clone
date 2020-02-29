@@ -5,11 +5,13 @@ import { WebSocketLink } from 'apollo-link-ws';
 import { onError } from 'apollo-link-error';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { getMainDefinition } from 'apollo-utilities';
+// import createFileLink from './createFileLink';
 
 const GRAPHQL_ENDPOINT = 'http://localhost:8080/graphql';
 const WS_ENDPOINT = 'ws://localhost:8080/subscriptions';
 
 const httpLink = createHttpLink({
+  // const httpLink = createFileLink({
   uri: GRAPHQL_ENDPOINT,
   credentials: 'same-origin'
   // credentials: 'include',
