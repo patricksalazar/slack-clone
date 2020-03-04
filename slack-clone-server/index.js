@@ -7,6 +7,7 @@ import cors from 'cors';
 import { createServer } from 'http';
 import { execute, subscribe } from 'graphql';
 import { SubscriptionServer } from 'subscriptions-transport-ws';
+import formidable from 'formidable';
 
 import models from './models';
 import { findUser, refreshTokens } from './auth';
@@ -51,7 +52,55 @@ const addUser = async (req, res, next) => {
   }
   next();
 };
-app.use(addUser);
+
+const uploadDir = 'files';
+const fileMiddleware = (req, res, next) => {
+  if (!req.is('multipart/form-data')) {
+    return next()
+  }
+
+  const form = formidable.IncomingForm({
+    // Defaults to the OS temp directory
+    uploadDir
+  });
+
+  // Parse the multipart form request
+  form.parse(req, (error, {operations}, files) => {
+    if (error) {
+      //reject(new Error(error))
+      console.log(error);
+    }
+
+    // Decode the GraphQL operation(s).  This is an array if batching is enabled
+    const document = JSON.parse(operations);
+
+    // Check if files were uploaded
+    if (Object.keys(files).length) {
+      const { file: {type, path }} = files;
+      console.log(type);
+      console.log(path);
+
+      // File field names contain the original path to the File object in the
+      // GraphQL operation input variables.  Relevant data for each uploaded
+      // file now gets placed back in the variables.
+      // const operationsPath = objectPath(document);
+      // Object.keys(files).forEach((variablesPath) => {
+      //   const { name, type, size, path} = files[variablesPath];
+      //   operationsPath.set(variablesPath, {name, type, size, path});
+      // });
+      document.variables.file = {
+        type,
+        path
+      }
+    }
+
+    req.body = document;
+    next();
+  });
+}
+
+app.use([addUser, fileMiddleware]);
+app.use('/files', express.static('files'));
 
 const SERVER = new ApolloServer({
   typeDefs: typeDefs,
@@ -99,7 +148,7 @@ SERVER.applyMiddleware({
 
 const server = createServer(app);
 
-models.sequelize.sync({}).then(() => {
+models.sequelize.sync({ force: false }).then(() => {
   server.listen(8080, () => {
     // eslint-disable-next-line no-new
     new SubscriptionServer(

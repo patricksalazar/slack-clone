@@ -1,7 +1,10 @@
 import React from 'react';
 import { withFormik } from 'formik';
 import styled from 'styled-components';
-import { Grid, Input, Button, Icon } from 'semantic-ui-react';
+import { 
+  // Grid, 
+  Input, Button, Icon 
+} from 'semantic-ui-react';
 
 import FileUpload from './FileUpload';
 
@@ -9,6 +12,8 @@ const FooterWrapper = styled.div`
   grid-column: 3;
   grid-row: 3;
   margin: 20px;
+  display: grid;
+  grid-template-columns: 50px auto;
 `;
 
 const ENTER_KEY = 13;
@@ -19,35 +24,28 @@ const Footer = ({
   handleChange,
   handleBlur,
   handleSubmit,
-  isSubmitting
+  isSubmitting,
+  channelId
 }) => (
   <FooterWrapper>
-    <Grid>
-      <Grid.Row>
-        <Grid.Column mobile={1} tablet={1} computer={1}>
-          <FileUpload>
-            <Button icon>
-              <Icon name="upload" />
-            </Button>
-          </FileUpload>
-        </Grid.Column>
-        <Grid.Column mobile={15} tablet={16} computer={15} stretched>
-          <Input
-            fluid
-            name="message"
-            value={values.message}
-            onBlur={handleBlur}
-            onChange={handleChange}
-            onKeyDown={e => {
-              if (e.keyCode === ENTER_KEY) {
-                handleSubmit();
-              }
-            }}
-            placeholder={`Message #${placeholder}`}
-          />
-        </Grid.Column>
-      </Grid.Row>
-    </Grid>
+    <FileUpload channelId={channelId}>
+      <Button icon>
+        <Icon name="upload" />
+      </Button>
+    </FileUpload>
+    <Input
+      fluid
+      name="message"
+      value={values.message}
+      onBlur={handleBlur}
+      onChange={handleChange}
+      onKeyDown={e => {
+        if (e.keyCode === ENTER_KEY && !isSubmitting) {
+          handleSubmit();
+        }
+      }}
+      placeholder={`Message #${placeholder}`}
+    />
   </FooterWrapper>
 );
 

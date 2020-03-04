@@ -1,30 +1,10 @@
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
-import gql from 'graphql-tag';
 import Downshift from 'downshift';
 import { Form, Header, Modal, Input, Button } from 'semantic-ui-react';
 
-const GET_TEAM_MEMBERS = gql`
-  query($teamId: Int!) {
-    getTeamMembers(teamId: $teamId) {
-      id
-      username
-    }
-  }
-`;
-
-// const CREATE_CHANNEL = gql`
-//   mutation($teamId: Int!, $name: String!) {
-//     createChannel(teamId: $teamId, name: $name) {
-//       ok
-//       channel {
-//         id
-//         name
-//       }
-//     }
-//   }
-// `;
+import {GET_TEAM_MEMBERS} from '../graphql/team';
 
 const DirectMessageModal = ({
   history,

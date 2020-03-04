@@ -59,6 +59,7 @@ const ViewTeam = ({
       {channel && <MessageContainer channelId={channel.id} />}
       {channel && (
         <Footer
+          channelId={channelId}
           placeholder={channel.name}
           onSubmit={async text => {
             return await mutate({ variables: { text, channelId: channel.id } });

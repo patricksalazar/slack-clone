@@ -1,10 +1,11 @@
-import React from 'react';
-import { graphql } from 'react-apollo';
-import gql from 'graphql-tag';
-import { Comment } from 'semantic-ui-react';
+import React from "react";
+import { graphql } from "react-apollo";
+import gql from "graphql-tag";
+import { Comment } from "semantic-ui-react";
 
-import Messages from '../components/Messages';
-import FileUpload from '../components/FileUpload';
+// import Messages from "../components/Messages";
+import FileUpload from "../components/FileUpload";
+import RenderText from "../components/RenderText";
 
 const QUERY_MESSAGES = gql`
   query($channelId: Int!) {
@@ -12,6 +13,8 @@ const QUERY_MESSAGES = gql`
       id
       text
       createdAt
+      url
+      filetype
       user {
         username
       }
@@ -31,6 +34,28 @@ const NEW_CHANNEL_MESSAGES_SUB = gql`
     }
   }
 `;
+
+const Message = ({message: {url, text, filetype} }) => {
+  if (url) {
+    if (filetype.startswith('image/')) {
+      return (<img src={url} alt=""/>)
+    }else if (filetype === 'text/plain') {
+      return (<RenderText url={url} />);
+    }else if (filetype.startswith('audio/')) {
+      return (
+        <div>
+          <audio controls>
+            <source src={url} type={filetype} />
+          </audio>
+        </div>
+      );
+    }
+  }
+
+  return (
+    <Comment.Text>{text}</Comment.Text>
+  );
+}
 
 class MessageContainer extends React.Component {
   componentDidMount() {
@@ -59,7 +84,7 @@ class MessageContainer extends React.Component {
         channelId: channelId
       },
       updateQuery: (prev, { subscriptionData }) => {
-        console.log('subscriptionData: ' + JSON.stringify(subscriptionData));
+        console.log("subscriptionData: " + JSON.stringify(subscriptionData));
         if (!subscriptionData) {
           return prev;
         }
@@ -78,26 +103,36 @@ class MessageContainer extends React.Component {
       channelId
     } = this.props;
     return loading ? null : (
-      <Messages channelId={channelId}>
-        <FileUpload disableClick>
-          <Comment.Group>
-            {messages.map(m => (
-              <Comment key={`message-${m.id}`}>
-                <Comment.Content>
-                  <Comment.Author as="a">{m.user.username}</Comment.Author>
-                  <Comment.Metadata>
-                    <div>{m.createdAt}</div>
-                  </Comment.Metadata>
-                  <Comment.Text>{m.text}</Comment.Text>
-                  <Comment.Actions>
-                    <Comment.Action>Reply</Comment.Action>
-                  </Comment.Actions>
-                </Comment.Content>
-              </Comment>
-            ))}
-          </Comment.Group>
-        </FileUpload>
-      </Messages>
+      <FileUpload
+        disableClick
+        channelId={channelId}
+        style={{
+          gridColumn: 3,
+          gridRow: 2,
+          paddingLeft: "20px",
+          paddingRight: "20px",
+          display: "flex",
+          flexDirection: "column-reverse",
+          overflowY: "auto"
+        }}
+      >
+        <Comment.Group>
+          {messages.map(m => (
+            <Comment key={`message-${m.id}`}>
+              <Comment.Content>
+                <Comment.Author as="a">{m.user.username}</Comment.Author>
+                <Comment.Metadata>
+                  <div>{m.createdAt}</div>
+                </Comment.Metadata>
+                <Message message={m} />
+                <Comment.Actions>
+                  <Comment.Action>Reply</Comment.Action>
+                </Comment.Actions>
+              </Comment.Content>
+            </Comment>
+          ))}
+        </Comment.Group>
+      </FileUpload>
     );
   }
 }
@@ -107,6 +142,6 @@ export default graphql(QUERY_MESSAGES, {
     channelId: props.channelId
   }),
   options: {
-    fetchPolicy: 'network-only'
+    fetchPolicy: "network-only"
   }
 })(MessageContainer);

@@ -22,3 +22,12 @@ export const ME_QUERY = gql`
     }
   }
 `;
+
+export const GET_TEAM_MEMBERS = gql`
+  query($teamId: Int!) {
+    getTeamMembers(teamId: $teamId) {
+      id
+      username
+    }
+  }
+`;

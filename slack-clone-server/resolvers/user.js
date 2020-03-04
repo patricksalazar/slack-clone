@@ -41,6 +41,7 @@ export default {
   },
   User: {
     teams: (parent, args, { models, user }) => {
+      console.log("user teams query");
       return models.sequelize.query(
         'select t.*, m.admin from teams as t inner join members as m on t.id = m.team_id where m.user_id = ?',
         { replacements: [user.id], model: models.Team, raw: true }

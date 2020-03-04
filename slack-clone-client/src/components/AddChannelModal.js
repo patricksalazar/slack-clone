@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Header, Modal, Input, Button } from 'semantic-ui-react';
+import { Form, Header, Modal, Input, Button, Checkbox } from 'semantic-ui-react';
 import { withFormik } from 'formik';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
@@ -7,10 +7,11 @@ import * as compose from 'lodash.flowright';
 import { findIndex } from 'lodash';
 
 import { ME_QUERY } from '../graphql/team';
+import MultiSelectUsers from './MultiSelectUsers';
 
 const CREATE_CHANNEL = gql`
-  mutation($teamId: Int!, $name: String!) {
-    createChannel(teamId: $teamId, name: $name) {
+  mutation($teamId: Int!, $name: String!, $public: Boolean, $members: [Int]) {
+    createChannel(teamId: $teamId, name: $name, public: $public, members: $members) {
       ok
       channel {
         id
@@ -28,7 +29,9 @@ const AddChannelModal = ({
   handleBlur,
   handleSubmit,
   isSubmitting,
-  resetForm
+  resetForm,
+  setFieldValue,
+  teamId
 }) => {
   return (
     <Modal
@@ -55,6 +58,14 @@ const AddChannelModal = ({
                 placeholder="Channel Name..."
               />
             </Form.Field>
+            <Form.Field>
+              <Checkbox checked={!values.public} label='Private' toggle onChange={(e, {checked}) => setFieldValue("public", !checked)}/>
+            </Form.Field>
+            { !values.public && (<Form.Field>
+              <MultiSelectUsers teamId={teamId} placeholder="select members to invite" value={values.members} 
+                handleChange={(e, {value}) => setFieldValue("members", value)}
+              />
+            </Form.Field>)}
             <Form.Field>
               <Form.Group widths="equal">
                 <Form.Button
@@ -87,7 +98,7 @@ const AddChannelModal = ({
 export default compose(
   graphql(CREATE_CHANNEL),
   withFormik({
-    mapPropsToValues: () => ({ name: '' }),
+    mapPropsToValues: () => ({ name: '', public: true, members: [] }),
 
     handleSubmit: async (
       values,

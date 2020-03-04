@@ -6,7 +6,8 @@ const sequelize = new Sequelize(
   'postgres',
   'postgres',
   {
-    host: '192.168.99.100',
+    // host: '192.168.99.100',
+    host: 'localhost',
     dialect: 'postgres',
     operatorAliases: Sequelize.Op,
     define: {

@@ -1,17 +1,19 @@
 import { ApolloClient } from 'apollo-client';
 import { ApolloLink, split } from 'apollo-link';
-import { createHttpLink } from 'apollo-link-http';
+// import { createHttpLink } from 'apollo-link-http';
 import { WebSocketLink } from 'apollo-link-ws';
 import { onError } from 'apollo-link-error';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { getMainDefinition } from 'apollo-utilities';
-// import createFileLink from './createFileLink';
+import createFileLink from './createFileLink';
 
 const GRAPHQL_ENDPOINT = 'http://localhost:8080/graphql';
 const WS_ENDPOINT = 'ws://localhost:8080/subscriptions';
 
-const httpLink = createHttpLink({
-  // const httpLink = createFileLink({
+// TODO upload alternative
+// https://github.com/jaydenseric/apollo-upload-examples
+// const httpLink = createHttpLink({
+const httpLink = createFileLink({
   uri: GRAPHQL_ENDPOINT,
   credentials: 'same-origin'
   // credentials: 'include',
