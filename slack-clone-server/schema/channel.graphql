@@ -2,6 +2,7 @@ type Channel {
   id: Int!
   name: String!
   public: Boolean!
+  dm: Boolean!
   messages: [Message!]!
 }
 
@@ -16,6 +17,7 @@ type Mutation {
     teamId: Int!
     name: String!
     public: Boolean = false
-    members: [Int!]
+    members: [Int!] = []
   ): ChannelResponse!
+  createDMChannel(teamId: Int!, members: [Int!]!): ChannelResponse!
 }

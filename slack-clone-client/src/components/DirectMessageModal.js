@@ -1,17 +1,38 @@
 import React from 'react';
-import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
-import Downshift from 'downshift';
-import { Form, Header, Modal, Input, Button } from 'semantic-ui-react';
+import { graphql } from 'react-apollo';
+import gql from 'graphql-tag';
+import { withFormik } from 'formik';
+import { findIndex } from 'lodash';
+import * as compose from 'lodash.flowright';
+import { Form, Header, Modal } from 'semantic-ui-react';
 
-import {GET_TEAM_MEMBERS} from '../graphql/team';
+import { ME_QUERY } from '../graphql/team';
+import MultiSelectUsers from './MultiSelectUsers';
+
+const CREATE_DM_CHANNEL = gql`
+  mutation($teamId: Int!, $members: [Int!]!) {
+    createDMChannel(teamId: $teamId, members: $members) {
+      ok
+      channel {
+        id
+        name
+        dm
+      }
+    }
+  }
+`;
 
 const DirectMessageModal = ({
-  history,
   open,
   onClose,
   teamId,
-  data: { loading, getTeamMembers }
+  currentUserId,
+  values,
+  handleSubmit,
+  isSubmitting,
+  resetForm,
+  setFieldValue
 }) => {
   return (
     <Modal
@@ -26,81 +47,34 @@ const DirectMessageModal = ({
           <Header>Search</Header>
           <Form>
             <Form.Field>
-              {!loading && (
-                <Downshift
-                  onChange={selectedUser => {
-                    history.push(
-                      `/view-team/user/${teamId}/${selectedUser.id}`
-                    );
-                    onClose();
-                    return false;
-                  }}
-                  itemToString={item => (item ? item.value : '')}
-                >
-                  {({
-                    getInputProps,
-                    getItemProps,
-                    // getLabelProps,
-                    getMenuProps,
-                    isOpen,
-                    inputValue,
-                    highlightedIndex,
-                    selectedItem
-                    // getRootProps
-                  }) => (
-                    <div>
-                      <Input
-                        {...getInputProps({
-                          placeholder: 'Select a username...'
-                        })}
-                        fluid
-                      />
-                      <ul {...getMenuProps()}>
-                        {isOpen
-                          ? getTeamMembers
-                              .filter(
-                                item =>
-                                  !inputValue ||
-                                  item.username
-                                    .toLowerCase()
-                                    .includes(inputValue.toLowerCase())
-                              )
-                              .map((item, index) => (
-                                <li
-                                  {...getItemProps({
-                                    key: item.id,
-                                    index,
-                                    item: item,
-                                    style: {
-                                      backgroundColor:
-                                        highlightedIndex === index
-                                          ? 'lightgray'
-                                          : 'white',
-                                      fontWeight:
-                                        selectedItem === item
-                                          ? 'bold'
-                                          : 'normal'
-                                    }
-                                  })}
-                                >
-                                  {item.username}
-                                </li>
-                              ))
-                          : null}
-                      </ul>
-                    </div>
-                  )}
-                </Downshift>
-              )}
+              <MultiSelectUsers
+                teamId={teamId}
+                currentUserId={currentUserId}
+                placeholder="select members to message"
+                value={values.members}
+                handleChange={(e, { value }) => setFieldValue('members', value)}
+              />
             </Form.Field>
             <Form.Field>
               <Form.Group widths="equal">
-                <Form.Button fluid type="submit">
-                  Add User
+                <Form.Button
+                  fluid
+                  type="submit"
+                  disabled={isSubmitting}
+                  onClick={handleSubmit}
+                >
+                  Start Messaging
                 </Form.Button>
-                <Button fluid onClick={onClose}>
+                <Form.Button
+                  fluid
+                  disabled={isSubmitting}
+                  onClick={e => {
+                    resetForm();
+                    onClose(e);
+                  }}
+                >
                   Cancel
-                </Button>
+                </Form.Button>
               </Form.Group>
             </Form.Field>
           </Form>
@@ -110,4 +84,49 @@ const DirectMessageModal = ({
   );
 };
 
-export default withRouter(graphql(GET_TEAM_MEMBERS)(DirectMessageModal));
+export default compose(
+  withRouter,
+  graphql(CREATE_DM_CHANNEL),
+  withFormik({
+    mapPropsToValues: () => ({ members: [] }),
+
+    handleSubmit: async (
+      { members },
+      { props: { teamId, onClose, history, mutate }, resetForm }
+    ) => {
+      console.log('members: ' + JSON.stringify(members));
+      const response = await mutate({
+        variables: {
+          teamId: parseInt(teamId),
+          members: members
+        },
+        update: (store, { data: { createDMChannel } }) => {
+          const { ok, channel } = createDMChannel;
+          if (!ok) {
+            return;
+          }
+
+          const data = store.readQuery({ query: ME_QUERY });
+          let teamIdx = findIndex(data.me.teams, ['id', teamId]);
+          const notInChannelList = data.me.teams[teamIdx].channels.every(
+            c => c.id !== channel.id
+          );
+          if (notInChannelList) {
+            data.me.teams[teamIdx].channels.push({ ...channel });
+            store.writeQuery({
+              query: ME_QUERY,
+              data
+            });
+          }
+          history.push(`/view-team/${teamId}/${channel.id}`);
+        }
+      });
+
+      console.log(response);
+      onClose();
+      resetForm();
+    },
+
+    displayName: 'BasicForm'
+  })
+)(DirectMessageModal);

@@ -32,12 +32,18 @@ export const requiresTeamAccess = createResolver(
       throw new Error('Not authenticated');
     }
     // check if part of the team
-    const channel = models.Channel.findOne({
-      where: { id: channelId }
+    const channel = await models.Channel.findOne({
+      where: { id: channelId },
+      raw: true
     });
-    const member = models.Member.findOne({
-      where: { teamId: channel.teamId, userId: user.id }
-    });
+
+    let member = null;
+    if (channel) {
+      member = await models.Member.findOne({
+        where: { teamId: channel.teamId, userId: user.id }
+      });
+    }
+
     if (!member) {
       throw new Error(
         "You have to be a member of the team to subscribe to it's messages"

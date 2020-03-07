@@ -1,13 +1,12 @@
 import Sequelize from 'sequelize';
 
-console.log('TEST: ' + process.env.TEST_DB);
 const sequelize = new Sequelize(
   process.env.TEST_DB || 'slack',
   'postgres',
   'postgres',
   {
-    // host: '192.168.99.100',
-    host: 'localhost',
+    host: '192.168.99.100',
+    // host: 'localhost',
     dialect: 'postgres',
     operatorAliases: Sequelize.Op,
     define: {
@@ -22,7 +21,8 @@ const models = {
   Channel: sequelize['import']('./channel'),
   Team: sequelize['import']('./team'),
   Message: sequelize['import']('./message'),
-  DirectMessage: sequelize['import']('./directMessage')
+  DirectMessage: sequelize['import']('./directMessage'),
+  PCMember: sequelize['import']('./pcmember')
 };
 
 Object.keys(models).forEach(modelName => {

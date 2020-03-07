@@ -56,7 +56,7 @@ const addUser = async (req, res, next) => {
 const uploadDir = 'files';
 const fileMiddleware = (req, res, next) => {
   if (!req.is('multipart/form-data')) {
-    return next()
+    return next();
   }
 
   const form = formidable.IncomingForm({
@@ -65,7 +65,7 @@ const fileMiddleware = (req, res, next) => {
   });
 
   // Parse the multipart form request
-  form.parse(req, (error, {operations}, files) => {
+  form.parse(req, (error, { operations }, files) => {
     if (error) {
       //reject(new Error(error))
       console.log(error);
@@ -76,7 +76,9 @@ const fileMiddleware = (req, res, next) => {
 
     // Check if files were uploaded
     if (Object.keys(files).length) {
-      const { file: {type, path }} = files;
+      const {
+        file: { type, path }
+      } = files;
       console.log(type);
       console.log(path);
 
@@ -91,13 +93,13 @@ const fileMiddleware = (req, res, next) => {
       document.variables.file = {
         type,
         path
-      }
+      };
     }
 
     req.body = document;
     next();
   });
-}
+};
 
 app.use([addUser, fileMiddleware]);
 app.use('/files', express.static('files'));

@@ -1,11 +1,11 @@
-import React from "react";
-import { graphql } from "react-apollo";
-import gql from "graphql-tag";
-import { Comment } from "semantic-ui-react";
+import React from 'react';
+import { graphql } from 'react-apollo';
+import gql from 'graphql-tag';
+import { Comment } from 'semantic-ui-react';
 
 // import Messages from "../components/Messages";
-import FileUpload from "../components/FileUpload";
-import RenderText from "../components/RenderText";
+import FileUpload from '../components/FileUpload';
+import RenderText from '../components/RenderText';
 
 const QUERY_MESSAGES = gql`
   query($channelId: Int!) {
@@ -31,17 +31,19 @@ const NEW_CHANNEL_MESSAGES_SUB = gql`
       user {
         username
       }
+      url
+      filetype
     }
   }
 `;
 
-const Message = ({message: {url, text, filetype} }) => {
+const Message = ({ message: { url, text, filetype } }) => {
   if (url) {
     if (filetype.startswith('image/')) {
-      return (<img src={url} alt=""/>)
-    }else if (filetype === 'text/plain') {
-      return (<RenderText url={url} />);
-    }else if (filetype.startswith('audio/')) {
+      return <img src={url} alt="" />;
+    } else if (filetype === 'text/plain') {
+      return <RenderText url={url} />;
+    } else if (filetype.startswith('audio/')) {
       return (
         <div>
           <audio controls>
@@ -52,10 +54,8 @@ const Message = ({message: {url, text, filetype} }) => {
     }
   }
 
-  return (
-    <Comment.Text>{text}</Comment.Text>
-  );
-}
+  return <Comment.Text>{text}</Comment.Text>;
+};
 
 class MessageContainer extends React.Component {
   componentDidMount() {
@@ -84,7 +84,7 @@ class MessageContainer extends React.Component {
         channelId: channelId
       },
       updateQuery: (prev, { subscriptionData }) => {
-        console.log("subscriptionData: " + JSON.stringify(subscriptionData));
+        console.log('subscriptionData: ' + JSON.stringify(subscriptionData));
         if (!subscriptionData) {
           return prev;
         }
@@ -109,11 +109,11 @@ class MessageContainer extends React.Component {
         style={{
           gridColumn: 3,
           gridRow: 2,
-          paddingLeft: "20px",
-          paddingRight: "20px",
-          display: "flex",
-          flexDirection: "column-reverse",
-          overflowY: "auto"
+          paddingLeft: '20px',
+          paddingRight: '20px',
+          display: 'flex',
+          flexDirection: 'column-reverse',
+          overflowY: 'auto'
         }}
       >
         <Comment.Group>
@@ -142,6 +142,6 @@ export default graphql(QUERY_MESSAGES, {
     channelId: props.channelId
   }),
   options: {
-    fetchPolicy: "network-only"
+    fetchPolicy: 'network-only'
   }
 })(MessageContainer);

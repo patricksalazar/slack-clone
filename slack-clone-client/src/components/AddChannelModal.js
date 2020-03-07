@@ -1,5 +1,12 @@
 import React from 'react';
-import { Form, Header, Modal, Input, Button, Checkbox } from 'semantic-ui-react';
+import {
+  Form,
+  Header,
+  Modal,
+  Input,
+  Button,
+  Checkbox
+} from 'semantic-ui-react';
 import { withFormik } from 'formik';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
@@ -10,8 +17,13 @@ import { ME_QUERY } from '../graphql/team';
 import MultiSelectUsers from './MultiSelectUsers';
 
 const CREATE_CHANNEL = gql`
-  mutation($teamId: Int!, $name: String!, $public: Boolean, $members: [Int]) {
-    createChannel(teamId: $teamId, name: $name, public: $public, members: $members) {
+  mutation($teamId: Int!, $name: String!, $public: Boolean, $members: [Int!]) {
+    createChannel(
+      teamId: $teamId
+      name: $name
+      public: $public
+      members: $members
+    ) {
       ok
       channel {
         id
@@ -31,7 +43,8 @@ const AddChannelModal = ({
   isSubmitting,
   resetForm,
   setFieldValue,
-  teamId
+  teamId,
+  currentUserId
 }) => {
   return (
     <Modal
@@ -59,13 +72,26 @@ const AddChannelModal = ({
               />
             </Form.Field>
             <Form.Field>
-              <Checkbox checked={!values.public} label='Private' toggle onChange={(e, {checked}) => setFieldValue("public", !checked)}/>
-            </Form.Field>
-            { !values.public && (<Form.Field>
-              <MultiSelectUsers teamId={teamId} placeholder="select members to invite" value={values.members} 
-                handleChange={(e, {value}) => setFieldValue("members", value)}
+              <Checkbox
+                checked={!values.public}
+                label="Private"
+                toggle
+                onChange={(e, { checked }) => setFieldValue('public', !checked)}
               />
-            </Form.Field>)}
+            </Form.Field>
+            {!values.public && (
+              <Form.Field>
+                <MultiSelectUsers
+                  teamId={teamId}
+                  currentUserId={currentUserId}
+                  placeholder="select members to invite"
+                  value={values.members}
+                  handleChange={(e, { value }) =>
+                    setFieldValue('members', value)
+                  }
+                />
+              </Form.Field>
+            )}
             <Form.Field>
               <Form.Group widths="equal">
                 <Form.Button
@@ -105,7 +131,12 @@ export default compose(
       { props: { teamId, onClose, mutate }, setSubmitting }
     ) => {
       const response = await mutate({
-        variables: { teamId: parseInt(teamId), name: values.name },
+        variables: {
+          teamId: parseInt(teamId),
+          name: values.name,
+          public: values.public,
+          members: values.members
+        },
         optimisticResponse: {
           createChannel: {
             __typename: 'Mutation',

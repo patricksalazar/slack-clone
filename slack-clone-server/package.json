@@ -37,6 +37,7 @@
     "dotenv": "^8.2.0",
     "eslint-cli": "^1.1.1",
     "express": "^4.17.1",
+    "formidable": "^1.2.2",
     "graphql-tools": "^4.0.6",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.15",

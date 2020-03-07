@@ -4,8 +4,12 @@ export default (sequelize, DataTypes) => {
       type: DataTypes.STRING
     },
     public: {
-      type: DataTypes.STRING,
+      type: DataTypes.BOOLEAN,
       defaultValue: true
+    },
+    dm: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
     }
   });
 
@@ -19,6 +23,13 @@ export default (sequelize, DataTypes) => {
     });
     Channel.belongsToMany(models.User, {
       through: 'channel_members',
+      foreignKey: {
+        name: 'channelId',
+        field: 'channel_id'
+      }
+    });
+    Channel.belongsToMany(models.User, {
+      through: models.PCMember,
       foreignKey: {
         name: 'channelId',
         field: 'channel_id'
