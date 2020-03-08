@@ -107,7 +107,6 @@ class MessageContainer extends React.Component {
         channelId: channelId
       },
       updateQuery: (prev, { subscriptionData }) => {
-        console.log('subscriptionData: ' + JSON.stringify(subscriptionData));
         if (!subscriptionData) {
           return prev;
         }

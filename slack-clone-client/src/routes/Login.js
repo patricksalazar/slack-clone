@@ -11,6 +11,8 @@ import {
   Message
 } from 'semantic-ui-react';
 
+import { wsLink } from '../apollo';
+
 const LOGIN = gql`
   mutation($email: String!, $password: String!) {
     login(email: $email, password: $password) {
@@ -45,6 +47,7 @@ function Login() {
     if (ok) {
       localStorage.setItem('token', token);
       localStorage.setItem('refreshToken', refreshToken);
+      wsLink.subscriptionClient.tryReconnect();
     }
     return <Redirect to="/view-team" />;
   } else if (data && data.login && !data.login.ok) {

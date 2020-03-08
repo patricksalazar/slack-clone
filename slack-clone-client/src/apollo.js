@@ -70,14 +70,15 @@ const afterwareLink = new ApolloLink((operation, forward) => {
 // })
 
 // Create a Web Socket link
-const wsLink = new WebSocketLink({
+export const wsLink = new WebSocketLink({
   uri: WS_ENDPOINT,
   options: {
     reconnect: true,
-    connectionParams: {
+    lazy: true,
+    connectionParams: () => ({
       token: localStorage.getItem('token'),
       refreshToken: localStorage.getItem('refreshToken')
-    }
+    })
   }
 });
 
