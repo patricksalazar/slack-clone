@@ -129,6 +129,7 @@ const SERVER = new ApolloServer({
         user: req.user,
         SECRET,
         SECRET2,
+        serverUrl: `${req.protocol}://${req.get('host')}`,
         channelLoader: new DataLoader(ids =>
           channelBatcher(ids, models, req.user)
         ),

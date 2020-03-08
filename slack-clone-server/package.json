@@ -4,9 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build": "babel src -d dist && yarn copy-to-dist",
+    "serve": "node dist/index.js",
+    "copy-to-dist": "copyfiles --up 1 src/schema/* dist",
     "test": "cross-env TEST_DB=testslack jest",
-    "start": "nodemon --exec babel-node index.js",
-    "test-server": "cross-env TEST_DB=testslack nodemon --exec babel-node index.js",
+    "start": "nodemon --exec babel-node src/index.js",
+    "test-server": "cross-env TEST_DB=testslack nodemon --exec babel-node src/index.js",
     "resetdb": "babel-node resetdb.js"
   },
   "keywords": [],
@@ -30,6 +33,7 @@
     "@babel/node": "^7.8.4",
     "@babel/plugin-transform-runtime": "^7.8.3",
     "@babel/polyfill": "^7.8.3",
+    "@babel/runtime": "^7.8.7",
     "apollo-server-express": "^2.10.0",
     "bcrypt": "^3.0.8",
     "core-js": "^3.6.4",
