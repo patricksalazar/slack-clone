@@ -8,9 +8,11 @@ import { createServer } from 'http';
 import { execute, subscribe } from 'graphql';
 import { SubscriptionServer } from 'subscriptions-transport-ws';
 import formidable from 'formidable';
+import DataLoader from 'dataloader';
 
 import models from './models';
 import { findUser, refreshTokens } from './auth';
+import { channelBatcher, dmMemberBatcher } from './batchFunctions';
 
 const SECRET = 'asjkdfhlkjhiouyqwer';
 const SECRET2 = 'qweiuojsdguylkj';
@@ -109,19 +111,30 @@ const SERVER = new ApolloServer({
   resolvers: resolvers,
   context: async ({ req, connection }) => {
     if (connection) {
-      console.log('Connection: ' + connection);
       return {
         models,
         user: connection.context,
         SECRET,
-        SECRET2
+        SECRET2,
+        channelLoader: new DataLoader(ids =>
+          channelBatcher(ids, models, connection.context)
+        ),
+        dmMemberLoader: new DataLoader(ids =>
+          dmMemberBatcher(ids, models, connection.context)
+        )
       };
     } else {
       return {
         models,
         user: req.user,
         SECRET,
-        SECRET2
+        SECRET2,
+        channelLoader: new DataLoader(ids =>
+          channelBatcher(ids, models, req.user)
+        ),
+        dmMemberLoader: new DataLoader(ids =>
+          dmMemberBatcher(ids, models, req.user)
+        )
       };
     }
   },

@@ -26,7 +26,7 @@ const ViewTeam = ({
     params: { teamId, channelId }
   }
 }) => {
-  if (loading) return <p>Loading...</p>;
+  if (loading || !me) return <p>Loading...</p>;
   if (error) return <p>Error: {JSON.stringify(error)}</p>;
 
   const { id: currentUserId, username, teams } = me;

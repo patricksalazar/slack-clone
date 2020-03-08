@@ -9,8 +9,8 @@ type Message {
 }
 
 input File {
-  type: String!,
-  path: String!,
+  type: String!
+  path: String!
 }
 
 type Subscription {
@@ -18,7 +18,7 @@ type Subscription {
 }
 
 type Query {
-  messages(channelId: Int!): [Message!]!
+  messages(channelId: Int!, cursor: String): [Message!]!
 }
 
 type Mutation {

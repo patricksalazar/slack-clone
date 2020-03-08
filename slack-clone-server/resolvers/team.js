@@ -116,39 +116,8 @@ export default {
     )
   },
   Team: {
-    channels: (parent, args, { models, user }) => {
-      console.log('Team channel id: ' + JSON.stringify(parent));
-      return models.Channel.findAll({
-        where: {
-          teamId: parent.id,
-          [models.Sequelize.Op.or]: [
-            { public: true },
-            {
-              id: {
-                [models.Sequelize.Op.in]: models.Sequelize.literal(
-                  '(SELECT CHANNEL_ID FROM PCMEMBERS WHERE USER_ID = ' +
-                    user.id +
-                    ')'
-                )
-              }
-            }
-          ]
-        }
-      });
-    },
-    directMessageMembers: ({ id }, args, { models, user }) => {
-      console.log('dm teamId: ' + id);
-      return models.sequelize.query(
-        'select distinct on (u.id) u.id, u.username from users as u join direct_messages as dm' +
-          ' on (u.id = dm.sender_id) or (u.id = dm.receiver_id)' +
-          ' where (:currentUserId = dm.sender_id or :currentUserId = dm.receiver_id)' +
-          ' and dm.team_id = :teamId',
-        {
-          replacements: { currentUserId: user.id, teamId: id },
-          model: models.User,
-          raw: true
-        }
-      );
-    }
+    channels: ({ id }, args, { channelLoader }) => channelLoader.load(id),
+    directMessageMembers: ({ id }, args, { dmMemberLoader }) =>
+      dmMemberLoader.load(id)
   }
 };

@@ -21,7 +21,6 @@ const models = {
   Channel: sequelize['import']('./channel'),
   Team: sequelize['import']('./team'),
   Message: sequelize['import']('./message'),
-  DirectMessage: sequelize['import']('./directMessage'),
   PCMember: sequelize['import']('./pcmember')
 };
 
@@ -33,5 +32,7 @@ Object.keys(models).forEach(modelName => {
 
 models.sequelize = sequelize;
 models.Sequelize = Sequelize;
+models.op = Sequelize.Op;
+models.DEFAULT_LIMIT = 10;
 
 export default models;

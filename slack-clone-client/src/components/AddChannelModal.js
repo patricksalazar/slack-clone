@@ -28,6 +28,7 @@ const CREATE_CHANNEL = gql`
       channel {
         id
         name
+        dm
       }
     }
   }
@@ -130,7 +131,7 @@ export default compose(
       values,
       { props: { teamId, onClose, mutate }, setSubmitting }
     ) => {
-      const response = await mutate({
+      await mutate({
         variables: {
           teamId: parseInt(teamId),
           name: values.name,
@@ -144,7 +145,8 @@ export default compose(
             channel: {
               __typename: 'Channel',
               id: -1,
-              name: values.name
+              name: values.name,
+              dm: false
             }
           }
         },
@@ -164,7 +166,6 @@ export default compose(
         }
       });
 
-      console.log(response);
       onClose();
       setSubmitting(false);
     },

@@ -9,12 +9,20 @@ const CREATE_FILE_MESSAGE = gql`
   }
 `;
 
-const FileUpload = ({ children, disableClick, channelId, mutate }) => {
+const FileUpload = ({
+  children,
+  disableClick,
+  channelId,
+  mutate,
+  style = {}
+}) => {
   const onDrop = async ([file]) => {
-    const response = await mutate({variables: {
-      channelId,
-      file,
-    }})
+    const response = await mutate({
+      variables: {
+        channelId,
+        file
+      }
+    });
     console.log(response);
   };
 
@@ -23,7 +31,7 @@ const FileUpload = ({ children, disableClick, channelId, mutate }) => {
     noClick: disableClick
   });
   return (
-    <div {...getRootProps()}>
+    <div {...getRootProps()} style={style}>
       <input {...getInputProps()} />
       {children}
     </div>

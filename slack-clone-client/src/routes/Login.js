@@ -70,6 +70,7 @@ function Login() {
           <Input
             name="email"
             value={email}
+            autoComplete="username"
             onChange={e => setEmail(e.target.value)}
             placeholder="Email"
             fluid
@@ -81,6 +82,7 @@ function Login() {
             value={password}
             onChange={e => setPassword(e.target.value)}
             type="password"
+            autoComplete="current-password"
             placeholder="Password"
             fluid
           />
