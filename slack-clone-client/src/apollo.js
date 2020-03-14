@@ -9,6 +9,8 @@ import createFileLink from './createFileLink';
 
 const GRAPHQL_ENDPOINT = 'http://localhost:8080/graphql';
 const WS_ENDPOINT = 'ws://localhost:8080/subscriptions';
+// const GRAPHQL_ENDPOINT = 'http://192.168.99.100:8081/graphql';
+// const WS_ENDPOINT = 'ws://192.168.99.100:8081/subscriptions';
 
 // TODO upload alternative
 // https://github.com/jaydenseric/apollo-upload-examples

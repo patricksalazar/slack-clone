@@ -96,15 +96,17 @@ export default {
     )
   },
   Message: {
-    url: (parent, args, { serverUrl }) => {
-      return parent.url ? `${serverUrl}/${parent.url}` : parent.url;
+    url: parent => {
+      return parent.url
+        ? `${process.env.SERVER_URL || 'http://localhost:8080'}/${parent.url}`
+        : parent.url;
     },
-    user: ({ user, userId }, args, { models }) => {
+    user: ({ user, userId }, args, { userLoader }) => {
       if (user) {
         return user;
       }
 
-      return models.User.findOne({ where: { id: userId } }, { raw: true });
+      return userLoader.load(userId);
     }
   }
 };

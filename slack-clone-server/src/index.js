@@ -12,7 +12,7 @@ import DataLoader from 'dataloader';
 
 import models from './models';
 import { findUser, refreshTokens } from './auth';
-import { channelBatcher, dmMemberBatcher } from './batchFunctions';
+import { channelBatcher, userBatcher, dmMemberBatcher } from './batchFunctions';
 
 const SECRET = 'asjkdfhlkjhiouyqwer';
 const SECRET2 = 'qweiuojsdguylkj';
@@ -119,6 +119,7 @@ const SERVER = new ApolloServer({
         channelLoader: new DataLoader(ids =>
           channelBatcher(ids, models, connection.context)
         ),
+        userLoader: new DataLoader(ids => userBatcher(ids, models)),
         dmMemberLoader: new DataLoader(ids =>
           dmMemberBatcher(ids, models, connection.context)
         )
@@ -133,6 +134,7 @@ const SERVER = new ApolloServer({
         channelLoader: new DataLoader(ids =>
           channelBatcher(ids, models, req.user)
         ),
+        userLoader: new DataLoader(ids => userBatcher(ids, models)),
         dmMemberLoader: new DataLoader(ids =>
           dmMemberBatcher(ids, models, req.user)
         )

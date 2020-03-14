@@ -32,6 +32,24 @@ export const channelBatcher = async (ids, models, user) => {
   return ids.map(id => (data[id] ? data[id] : []));
 };
 
+export const userBatcher = async (ids, models) => {
+  const results = await models.User.findAll({
+    where: {
+      id: { [models.op.in]: ids }
+    },
+    raw: true
+  });
+
+  const data = {};
+
+  // group by user id
+  results.forEach(r => {
+    data[r.id] = [r];
+  });
+
+  return ids.map(id => (data[id] ? data[id] : []));
+};
+
 export const dmMemberBatcher = async (ids, models, user) => {
   const results = await models.sequelize.query(
     'select distinct on (u.id) u.id, u.username from users as u join direct_messages as dm' +

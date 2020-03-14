@@ -1,0 +1,15 @@
+#!/bin/bash
+set -e
+
+echo "generating configuration files"
+#FILES=/tmp/config/*
+#for f in $FILES
+#do
+#  c=$(basename $f .tmp)
+#  echo "... $c"
+#  envsubst < $f > /usr/src/app/config/${c}
+#done
+envsubst < $1 > $2
+
+echo "starting $@"
+exec "$@"

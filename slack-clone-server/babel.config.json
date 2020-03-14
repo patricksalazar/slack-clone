@@ -15,12 +15,5 @@
       }
     ]
   ],
-  "plugins": [
-    [
-      "@babel/plugin-transform-runtime",
-      {
-        "regenerator": true
-      }
-    ]
-  ]
+  "plugins": [["@babel/plugin-proposal-object-rest-spread"]]
 }
